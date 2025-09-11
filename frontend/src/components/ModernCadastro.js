@@ -26,24 +26,35 @@ export default function ModernCadastro({ setToken, switchToLogin }) {
     setError("");
     setSuccess("");
 
-    if (formData.password !== formData.confirmPassword) {
+    const name = formData.name.trim();
+    const email = formData.email.trim();
+    const password = formData.password;
+    const confirmPassword = formData.confirmPassword;
+    const cpf = formData.cpf.trim();
+    const cnpj = formData.cnpj.trim();
+    const celular = formData.celular.trim();
+
+    if (password !== confirmPassword) {
       setError("As senhas não coincidem");
       return;
     }
-    if (formData.password.length < 6) {
+
+    if (password.length < 6) {
       setError("A senha deve ter pelo menos 6 caracteres");
       return;
     }
 
-    if (!formData.cpf && !formData.cnpj) {
+    if (!cpf && !cnpj) {
       setError("Preencha CPF ou CNPJ");
       return;
     }
-    if (formData.cpf && formData.cpf.length !== 11) {
+
+    if (cpf && cpf.length !== 11) {
       setError("CPF deve ter 11 dígitos");
       return;
     }
-    if (formData.cnpj && formData.cnpj.length !== 14) {
+
+    if (cnpj && cnpj.length !== 14) {
       setError("CNPJ deve ter 14 dígitos");
       return;
     }
@@ -54,12 +65,12 @@ export default function ModernCadastro({ setToken, switchToLogin }) {
       await apiFetch("cadastros", {
         method: "POST",
         body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          cpf: formData.cpf || null,
-          cnpj: formData.cnpj || null,
-          celular: formData.celular || null,
+          name,
+          email,
+          password,
+          cpf: cpf || null,
+          cnpj: cnpj || null,
+          celular: celular || null,
         }),
       });
 
@@ -70,13 +81,13 @@ export default function ModernCadastro({ setToken, switchToLogin }) {
           const loginData = await apiFetch("login", {
             method: "POST",
             body: JSON.stringify({
-              email: formData.email,
-              password: formData.password,
+              email,
+              password,
             }),
           });
           setToken(loginData.token);
           localStorage.setItem("token", loginData.token);
-          localStorage.setItem("userEmail", formData.email);
+          localStorage.setItem("userEmail", email);
         } catch {
           setError("Conta criada, mas erro no login automático");
         }
@@ -186,7 +197,11 @@ export default function ModernCadastro({ setToken, switchToLogin }) {
 
           <div className="auth-switch-rental">
             <p>Já tem uma conta?</p>
-            <button className="switch-button-rental" onClick={switchToLogin}>
+            <button
+              type="button"
+              className="switch-button-rental"
+              onClick={switchToLogin}
+            >
               Fazer login
             </button>
           </div>
