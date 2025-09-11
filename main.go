@@ -4,18 +4,25 @@ import (
 	"log"
 
 	"awesomeProject/Internal_temp/handler"
-	"awesomeProject/Internal_temp/repository"
+	Repository "awesomeProject/Internal_temp/repository"
 	"awesomeProject/Internal_temp/service"
 	"awesomeProject/config"
 	"awesomeProject/db/dataSrc"
 	dbsqlc "awesomeProject/db/sqlc"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
 
 	e := echo.New()
+
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:3000"},
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+	}))
 
 	conn, err := dataSrc.Connect()
 	if err != nil {
