@@ -1,11 +1,11 @@
 
 -- name: CreateLogin :one
-INSERT INTO login (email, password)
+INSERT INTO cadastro (email, password)
 VALUES ($1, $2)
 RETURNING *;
 
 
 -- name: GetLogin :one
 SELECT email, password
-FROM login
+FROM cadastro
 WHERE email = $1;

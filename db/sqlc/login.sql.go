@@ -10,9 +10,9 @@ import (
 )
 
 const createLogin = `-- name: CreateLogin :one
-INSERT INTO login (email, password)
+INSERT INTO cadastro (email, password)
 VALUES ($1, $2)
-RETURNING email, password
+RETURNING id, name, cpf, cnpj, email, celular, password, status, activation_code, created_at
 `
 
 type CreateLoginParams struct {
@@ -20,22 +20,38 @@ type CreateLoginParams struct {
 	Password string
 }
 
-func (q *Queries) CreateLogin(ctx context.Context, arg CreateLoginParams) (Login, error) {
+func (q *Queries) CreateLogin(ctx context.Context, arg CreateLoginParams) (Cadastro, error) {
 	row := q.db.QueryRowContext(ctx, createLogin, arg.Email, arg.Password)
-	var i Login
-	err := row.Scan(&i.Email, &i.Password)
+	var i Cadastro
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Cpf,
+		&i.Cnpj,
+		&i.Email,
+		&i.Celular,
+		&i.Password,
+		&i.Status,
+		&i.ActivationCode,
+		&i.CreatedAt,
+	)
 	return i, err
 }
 
 const getLogin = `-- name: GetLogin :one
 SELECT email, password
-FROM login
+FROM cadastro
 WHERE email = $1
 `
 
-func (q *Queries) GetLogin(ctx context.Context, email string) (Login, error) {
+type GetLoginRow struct {
+	Email    string
+	Password string
+}
+
+func (q *Queries) GetLogin(ctx context.Context, email string) (GetLoginRow, error) {
 	row := q.db.QueryRowContext(ctx, getLogin, email)
-	var i Login
+	var i GetLoginRow
 	err := row.Scan(&i.Email, &i.Password)
 	return i, err
 }

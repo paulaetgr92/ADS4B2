@@ -1,6 +1,6 @@
 -- name: CreateCadastro :one
-INSERT INTO cadastro (name, cnpj, email, celular, password, status, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, now())
+INSERT INTO cadastro (name, cnpj, cpf,email, celular, password, status, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7,now())
 RETURNING *;
 
 

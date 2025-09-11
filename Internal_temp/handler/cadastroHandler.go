@@ -33,7 +33,7 @@ func (h *CadastroHandler) CreateCadastro(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusCreated, map[string]interface{}{
-		"message":  "Cadastro realizado com sucesso! Verifique seu WhatsApp para ativar sua conta.",
+		"message":  "Cadastro realizado com sucesso! ",
 		"cadastro": cadastro,
 	})
 }

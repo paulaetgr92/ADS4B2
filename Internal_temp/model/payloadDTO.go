@@ -17,6 +17,7 @@ type PayloadDTO struct {
 	UserOrgId      int64     `json:"user_org_id"`
 	UserEmail      string    `json:"user_email"`
 	OrganizationID int64     `json:"organization_id"`
+	Status         string    `json:"status"`
 	Document       string    `json:"document"`
 }
 

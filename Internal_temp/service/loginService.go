@@ -22,7 +22,7 @@ func NewLoginoService(r Repository.CreateLoginRepositoryInterface) *LoginService
 	return &LoginService{Repo: r}
 }
 
-func (s *LoginService) CreateLoginUser(ctx context.Context, data model.LoginRequest) (db.Login, error) {
+func (s *LoginService) CreateLoginUser(ctx context.Context, data model.LoginRequest) (db.Cadastro, error) {
 	arg := db.CreateLoginParams{
 		Email:    data.Email,
 		Password: data.Password,
