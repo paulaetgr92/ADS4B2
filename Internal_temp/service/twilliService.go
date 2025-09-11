@@ -2,46 +2,68 @@ package service
 
 import (
 	"fmt"
-	"os"
+	"log"
 
 	"github.com/twilio/twilio-go"
 	openapi "github.com/twilio/twilio-go/rest/api/v2010"
 )
 
-type TwilioService struct {
-	client *twilio.RestClient
-	from   string
-}
-
-func NewTwilioService() *TwilioService {
-	accountSid := os.Getenv("TWILIO_ACCOUNT_SID")
-	authToken := os.Getenv("TWILIO_AUTH_TOKEN")
-
-	fromWhatsApp := ""
-
-	client := twilio.NewRestClientWithParams(twilio.ClientParams{
-		Username: accountSid,
-		Password: authToken,
-	})
+func NewTwilioService(accountSid, authToken, fromNumber, contentSid string) *TwilioService {
 	return &TwilioService{
-		client: client,
-		from:   fromWhatsApp,
+
+		accountSid: accountSid,
+		authToken:  authToken,
+		fromNumber: fromNumber,
+		contentSid: contentSid,
 	}
 }
 
-func (t *TwilioService) SendActivationCodeTemplate(to string, code string) error {
+// Envia mensagem simples (sandbox)
+func (t *TwilioService) SendActivationCodeText(to string, code string) error {
+	client := twilio.NewRestClientWithParams(twilio.ClientParams{
+		Username: t.accountSid,
+		Password: t.authToken,
+	})
+
 	params := &openapi.CreateMessageParams{}
-	params.SetFrom("whatsapp:" + t.from)
-	params.SetTo("whatsapp:" + "")
-	templateSID := ""
+	params.SetFrom(t.fromNumber)
+	params.SetTo(to)
+	params.SetBody(fmt.Sprintf("Seu código de ativação é: %s", code))
 
-	variables := fmt.Sprintf(`{"1":"%s"}`, code)
-	params.SetContentSid(templateSID)
-	params.SetContentVariables(variables)
-
-	_, err := t.client.Api.CreateMessage(params)
+	resp, err := client.Api.CreateMessage(params)
 	if err != nil {
-		return fmt.Errorf("erro ao enviar código de ativação: %w", err)
+		log.Printf("Erro ao enviar mensagem de teste: %v", err)
+		return err
+	}
+
+	if resp.Sid != nil {
+		log.Printf("Mensagem enviada com sucesso! SID: %s", *resp.Sid)
+	}
+
+	return nil
+}
+
+// Envia mensagem usando template aprovado
+func (t *TwilioService) SendActivationCodeTemplate(to string, code string) error {
+	client := twilio.NewRestClientWithParams(twilio.ClientParams{
+		Username: t.accountSid,
+		Password: t.authToken,
+	})
+
+	params := &openapi.CreateMessageParams{}
+	params.SetFrom(t.fromNumber)
+	params.SetTo(to)
+	params.SetContentSid(t.contentSid)
+	params.SetContentVariables(fmt.Sprintf(`{"1":"%s"}`, code))
+
+	resp, err := client.Api.CreateMessage(params)
+	if err != nil {
+		log.Printf("Erro ao enviar mensagem template: %v", err)
+		return err
+	}
+
+	if resp.Sid != nil {
+		log.Printf("Mensagem enviada com sucesso! SID: %s", *resp.Sid)
 	}
 
 	return nil
