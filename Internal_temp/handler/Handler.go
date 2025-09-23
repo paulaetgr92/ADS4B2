@@ -15,10 +15,15 @@ type CreateLoginHandlerInterface interface {
 	Login(c echo.Context) error
 }
 
-type twillioHandlerInterface interface {
+type TwillioHandlerInterface interface {
 	VerifyCode(c echo.Context) error
 }
 
-type produtoHandlerInterface interface {
+type ProdutoHandlerInterface interface {
 	CreateProductHandler(c echo.Context) error
+}
+
+type AdminHandlerInterface interface {
+	CreateLoginAdminHandler(c echo.Context) error
+	CreateAdminHandler(c echo.Context) error
 }

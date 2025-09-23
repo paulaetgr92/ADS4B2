@@ -9,6 +9,15 @@ import (
 	"time"
 )
 
+type Admin struct {
+	ID        int64
+	Cnpj      string
+	Name      string
+	Email     string
+	Password  string
+	CreatedAt sql.NullTime
+}
+
 type Cadastro struct {
 	ID             int64
 	Name           string

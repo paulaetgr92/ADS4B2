@@ -31,3 +31,8 @@ type ProdutoRepositoryInterface interface {
 	GetProdutoByIdRepository(ctx context.Context, arg int64) (db.GetProdutoByIdRow, error)
 	CreateProdutoRepository(ctx context.Context, arg db.CreateProductParams) (int64, error)
 }
+
+type AdminRepositoryInterface interface {
+	LoginNewAdmin(ctx context.Context, arg db.CreateLoginParams) (db.CreateLoginAdminRow, error)
+	CreateAdmin(ctx context.Context, arg db.CreateAdminParams) (db.Admin, error)
+}

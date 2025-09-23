@@ -23,3 +23,8 @@ type LoginServiceinterface interface {
 type ProdutoServiceInterface interface {
 	CreateProduct(ctx context.Context, data model.ProdutosRequest) (int64, error)
 }
+
+type AdminServiceInterface interface {
+	CreateAdminService(ctx context.Context, data model.AdminRequest) error
+	LoginAdminService(ctx context.Context, data model.LoginRequest) error
+}
