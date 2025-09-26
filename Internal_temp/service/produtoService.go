@@ -47,3 +47,12 @@ func (s *ProdutoService) CreateProduct(ctx context.Context, data model.ProdutosR
 
 	return id, nil
 }
+
+func (s *ProdutoService) GetProducts(ctx context.Context) ([]db.Produto, error) {
+	produtos, err := s.repo.GetProdutosRepository(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return produtos, nil
+}

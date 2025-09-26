@@ -2,7 +2,7 @@ import { useState } from "react";
 import { apiFetch } from "../api";
 import "./RentalAuth.css";
 
-export default function ModernCadastro({ setToken, switchToLogin }) {
+export default function ModernCadastro({ switchToLogin }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -26,13 +26,8 @@ export default function ModernCadastro({ setToken, switchToLogin }) {
     setError("");
     setSuccess("");
 
-    const name = formData.name.trim();
-    const email = formData.email.trim();
-    const password = formData.password;
-    const confirmPassword = formData.confirmPassword;
-    const cpf = formData.cpf.trim();
-    const cnpj = formData.cnpj.trim();
-    const celular = formData.celular.trim();
+    const { name, email, password, confirmPassword, cpf, cnpj, celular } =
+      formData;
 
     if (password !== confirmPassword) {
       setError("As senhas não coincidem");
@@ -74,23 +69,20 @@ export default function ModernCadastro({ setToken, switchToLogin }) {
         }),
       });
 
-      setSuccess("Conta criada com sucesso! Redirecionando...");
+      setSuccess("Conta criada com sucesso! Redirecionando para login...");
 
-      setTimeout(async () => {
-        try {
-          const loginData = await apiFetch("login", {
-            method: "POST",
-            body: JSON.stringify({
-              email,
-              password,
-            }),
-          });
-          setToken(loginData.token);
-          localStorage.setItem("token", loginData.token);
-          localStorage.setItem("userEmail", email);
-        } catch {
-          setError("Conta criada, mas erro no login automático");
-        }
+      setTimeout(() => {
+        setSuccess("");
+        switchToLogin();
+        setFormData({
+          name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          cpf: "",
+          cnpj: "",
+          celular: "",
+        });
       }, 1500);
     } catch (err) {
       setError(err.message || "Erro ao criar conta");
@@ -123,7 +115,6 @@ export default function ModernCadastro({ setToken, switchToLogin }) {
               required
               className="rental-input"
             />
-
             <input
               type="email"
               name="email"
@@ -133,7 +124,6 @@ export default function ModernCadastro({ setToken, switchToLogin }) {
               required
               className="rental-input"
             />
-
             <input
               type="text"
               name="cpf"
@@ -142,7 +132,6 @@ export default function ModernCadastro({ setToken, switchToLogin }) {
               onChange={handleChange}
               className="rental-input"
             />
-
             <input
               type="text"
               name="cnpj"
@@ -151,7 +140,6 @@ export default function ModernCadastro({ setToken, switchToLogin }) {
               onChange={handleChange}
               className="rental-input"
             />
-
             <input
               type="text"
               name="celular"
@@ -160,7 +148,6 @@ export default function ModernCadastro({ setToken, switchToLogin }) {
               onChange={handleChange}
               className="rental-input"
             />
-
             <input
               type="password"
               name="password"
@@ -170,7 +157,6 @@ export default function ModernCadastro({ setToken, switchToLogin }) {
               required
               className="rental-input"
             />
-
             <input
               type="password"
               name="confirmPassword"
@@ -180,7 +166,6 @@ export default function ModernCadastro({ setToken, switchToLogin }) {
               required
               className="rental-input"
             />
-
             <button type="submit" className="continue-btn" disabled={loading}>
               {loading ? "Criando conta..." : "Criar conta gratuita"}
             </button>
