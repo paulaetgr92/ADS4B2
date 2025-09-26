@@ -39,3 +39,15 @@ func (h *ProdutoHandler) CreateProductHandler(c echo.Context) error {
 		"id":      id,
 	})
 }
+func (h *ProdutoHandler) GetProductsHandler(c echo.Context) error {
+	produtos, err := h.Service.GetProducts(context.Background())
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "erro ao buscar produtos: " + err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"produtos": produtos,
+	})
+}

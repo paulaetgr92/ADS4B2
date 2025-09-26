@@ -30,6 +30,7 @@ type ProdutoRepositoryInterface interface {
 	GetProdutoByDisponibilidade(ctx context.Context, arg db.GetProdutoByDisponibilidadeParams) ([]db.GetProdutoByDisponibilidadeRow, error)
 	GetProdutoByIdRepository(ctx context.Context, arg int64) (db.GetProdutoByIdRow, error)
 	CreateProdutoRepository(ctx context.Context, arg db.CreateProductParams) (int64, error)
+	GetProdutosRepository(ctx context.Context) ([]db.Produto, error)
 }
 
 type AdminRepositoryInterface interface {

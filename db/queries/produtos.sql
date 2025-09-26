@@ -37,3 +37,6 @@ WHERE id_roupa = $7 and status = true
 RETURNING *;
 
 
+
+-- name: GetAllProdutos :many
+SELECT * FROM produto ORDER BY id_roupa DESC;

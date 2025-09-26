@@ -51,5 +51,12 @@ func (r *ProdutosNewRepository) DeleteProdutoByIdRepository(ctx context.Context,
 		return db.Produto{}, err
 	}
 	return r.Queries.DeleteProdutoByID(ctx, arg)
+}
 
+func (r *ProdutosNewRepository) GetProdutosRepository(ctx context.Context) ([]db.Produto, error) {
+	err := r.GetConnection(ctx)
+	if err != nil {
+		return []db.Produto{}, err
+	}
+	return r.Queries.GetAllProdutos(ctx)
 }

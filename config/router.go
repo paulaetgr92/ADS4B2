@@ -22,6 +22,7 @@ func SetupRoutes(e *echo.Echo, cadastroHandler *handler2.CadastroHandler, handle
 	produtos := api.Group("/produtos")
 	{
 		produtos.POST("", produtoHandler.CreateProductHandler)
+		produtos.GET("", produtoHandler.GetProductsHandler)
 	}
 
 	admin := api.Group("/admin")
