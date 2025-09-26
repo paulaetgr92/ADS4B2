@@ -8,5 +8,5 @@ type CadastroRequest struct {
 	Celular        string     `json:"celular"`
 	Email          string     `json:"email"`
 	Password       string     `json:"password"`
-	PayloadDTO     PayloadDTO `json:"payloadDTO"` // Payload completo
+	PayloadDTO     PayloadDTO `json:"payloadDTO"`
 }
