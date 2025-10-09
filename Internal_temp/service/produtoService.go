@@ -39,6 +39,10 @@ func (s *ProdutoService) CreateProduct(ctx context.Context, data model.ProdutosR
 			String: data.Localizacao,
 			Valid:  data.Localizacao != "",
 		},
+		ImagemUrl: sql.NullString{
+			String: data.ImagemUrl,
+			Valid:  data.ImagemUrl != "",
+		},
 	}
 
 	id, err := s.repo.CreateProdutoRepository(ctx, arg)
@@ -61,7 +65,9 @@ func (s *ProdutoService) GetProdutoByIdService(ctx context.Context, id int64) (m
 		Tamanho:     produto.Tamanho,
 		Cores:       produto.Cores.String,
 		TempoValor:  int64(produto.TempoValor.Float64),
+		Status:      produto.Status.String,
 		Localizacao: produto.Localizacao.String,
+		ImagemUrl:   produto.ImagemUrl.String,
 		Ativo:       produto.Status.Valid,
 	}
 
@@ -79,11 +85,15 @@ func (s *ProdutoService) ListProdutoService(ctx context.Context) ([]model.Produt
 	for _, p := range produtos {
 
 		result = append(result, model.ProdutosResponse{
+			IdRoupa:     p.IDRoupa,
 			Categoria:   p.Categoria,
 			Tamanho:     p.Tamanho,
 			Cores:       p.Cores.String,
 			TempoValor:  int64(p.TempoValor.Float64),
+			Status:      p.Status.String,
 			Localizacao: p.Localizacao.String,
+			ImagemUrl:   p.ImagemUrl.String,
+			Ativo:       p.Status.Valid,
 		})
 	}
 
@@ -112,6 +122,10 @@ func (s *ProdutoService) UpdateProdutoByIdService(ctx context.Context, id int64,
 			String: data.Localizacao,
 			Valid:  true,
 		},
+		ImagemUrl: sql.NullString{
+			String: data.ImagemUrl,
+			Valid:  true,
+		},
 	}
 
 	produto, err := s.repo.AtualizarProduto(ctx, arg)
@@ -125,6 +139,7 @@ func (s *ProdutoService) UpdateProdutoByIdService(ctx context.Context, id int64,
 		Cores:       produto.Cores.String,
 		TempoValor:  int64(produto.TempoValor.Float64),
 		Localizacao: produto.Localizacao.String,
+		ImagemUrl:   produto.ImagemUrl.String,
 	}, nil
 }
 

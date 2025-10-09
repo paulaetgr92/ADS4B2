@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { buscarProdutoPorId } from "./produtos";
 import "./RentalDashboard.css";
 
 export default function RentalDashboard({ token, onLogout }) {
@@ -8,6 +9,8 @@ export default function RentalDashboard({ token, onLogout }) {
   const [memberSince, setMemberSince] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -25,30 +28,28 @@ export default function RentalDashboard({ token, onLogout }) {
       const data = await response.json();
       console.log("Dados recebidos do servidor:", data);
 
-      const produtosArray = data.produtos || [];
+      // Backend retorna array direto
+      const produtosArray = Array.isArray(data) ? data : [];
 
-      const mappedProducts = data.produtos.map((produto) => ({
-        id: produto.IDRoupa,
-        name: `${produto.Categoria?.String || produto.Categoria} ${
-          produto.Cores?.String || produto.Cores
-        }`,
-        category: produto.Categoria?.String || produto.Categoria,
-        size: produto.Tamanho?.String || produto.Tamanho,
-        color: produto.Cores?.String || produto.Cores,
+      const mappedProducts = produtosArray.map((produto) => ({
+        id: produto.id_roupa,
+        name: `${produto.categoria} ${produto.cores}`,
+        category: produto.categoria,
+        size: produto.tamanho,
+        color: produto.cores,
         brand: "DoutorRent",
-        daily_price: produto.TempoValor?.Float64 || 0,
-        weekly_price: (produto.TempoValor?.Float64 || 0) * 7,
-        image_url: getImageForCategory(
-          produto.Categoria?.String || produto.Categoria
-        ),
+        daily_price: produto.tempoValor || 0,
+        weekly_price: (produto.tempoValor || 0) * 7,
+        image_url: getImageForCategory(produto.categoria, produto.imagem_url),
+        imagem_url: produto.imagem_url,
         condition:
-          produto.Status?.String === "disponivel"
+          produto.status === "disponivel"
             ? "Disponível"
-            : produto.Status?.String === "alugado"
+            : produto.status === "alugado"
             ? "Alugado"
             : "Manutenção",
-        status: produto.Status?.String,
-        localizacao: produto.Localizacao?.String || produto.Localizacao,
+        status: produto.status,
+        localizacao: produto.localizacao,
       }));
 
       setProducts(mappedProducts);
@@ -61,7 +62,11 @@ export default function RentalDashboard({ token, onLogout }) {
     }
   };
 
-  const getImageForCategory = (categoria) => {
+  const getImageForCategory = (categoria, imagemUrl) => {
+    if (imagemUrl && imagemUrl.trim() !== "") {
+      return imagemUrl;
+    }
+
     const imageMap = {
       Vestido:
         "https://images.unsplash.com/photo-1566479179817-c0b5b4b4b1b5?w=300&h=400&fit=crop",
@@ -77,10 +82,51 @@ export default function RentalDashboard({ token, onLogout }) {
       Acessório:
         "https://images.unsplash.com/photo-1506629905607-d405b7a82e96?w=300&h=400&fit=crop",
     };
+
     return (
       imageMap[categoria] ||
       "https://images.unsplash.com/photo-1445205170230-053b83016050?w=300&h=400&fit=crop"
     );
+  };
+
+  const handleViewDetails = async (productId) => {
+    setLoading(true);
+    setError("");
+    try {
+      const produto = await buscarProdutoPorId(productId);
+      const mappedProduct = {
+        id: produto.id_roupa,
+        name: `${produto.categoria} ${produto.cores}`,
+        category: produto.categoria,
+        size: produto.tamanho,
+        color: produto.cores,
+        brand: "DoutorRent",
+        daily_price: produto.tempoValor || 0,
+        weekly_price: (produto.tempoValor || 0) * 7,
+        image_url: getImageForCategory(produto.categoria, produto.imagem_url),
+        imagem_url: produto.imagem_url,
+        condition:
+          produto.status === "disponivel"
+            ? "Disponível"
+            : produto.status === "alugado"
+            ? "Alugado"
+            : "Manutenção",
+        status: produto.status,
+        localizacao: produto.localizacao,
+      };
+      setSelectedProduct(mappedProduct);
+      setShowDetailModal(true);
+    } catch (error) {
+      setError("Erro ao carregar detalhes do produto");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const closeDetailModal = () => {
+    setShowDetailModal(false);
+    setSelectedProduct(null);
   };
 
   useEffect(() => {
@@ -172,6 +218,12 @@ export default function RentalDashboard({ token, onLogout }) {
               <div className="product-image">
                 <img src={product.image_url} alt={product.name} />
                 <div className="product-overlay">
+                  <button
+                    className="view-details-btn"
+                    onClick={() => handleViewDetails(product.id)}
+                  >
+                    Ver Detalhes
+                  </button>
                   <button
                     className="rent-btn"
                     disabled={product.status !== "disponivel"}
@@ -308,6 +360,102 @@ export default function RentalDashboard({ token, onLogout }) {
         {activeTab === "rentals" && renderMyRentals()}
         {activeTab === "profile" && renderProfile()}
       </main>
+
+      {showDetailModal && selectedProduct && (
+        <div className="modal-overlay" onClick={closeDetailModal}>
+          <div
+            className="modal-content detail-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2>Detalhes do Produto</h2>
+              <button className="close-btn" onClick={closeDetailModal}>
+                ✕
+              </button>
+            </div>
+            <div className="product-detail-content">
+              <div className="detail-image">
+                <img
+                  src={selectedProduct.image_url}
+                  alt={selectedProduct.name}
+                />
+              </div>
+              <div className="detail-info">
+                <h3 className="detail-name">{selectedProduct.name}</h3>
+                <p className="detail-brand">{selectedProduct.brand}</p>
+                <div className="detail-section">
+                  <h4>Informações</h4>
+                  <div className="detail-row">
+                    <span className="detail-label">ID:</span>
+                    <span className="detail-value">{selectedProduct.id}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Categoria:</span>
+                    <span className="detail-value">
+                      {selectedProduct.category}
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Tamanho:</span>
+                    <span className="detail-value">{selectedProduct.size}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Cor:</span>
+                    <span className="detail-value">
+                      {selectedProduct.color}
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Status:</span>
+                    <span
+                      className={`condition-badge ${selectedProduct.status}`}
+                    >
+                      {selectedProduct.condition}
+                    </span>
+                  </div>
+                  {selectedProduct.localizacao && (
+                    <div className="detail-row">
+                      <span className="detail-label">Localização:</span>
+                      <span className="detail-value">
+                        {selectedProduct.localizacao}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="detail-section">
+                  <h4>Preços</h4>
+                  <div className="detail-pricing">
+                    <div className="price-detail">
+                      <span className="price-label">Diária</span>
+                      <span className="price-value">
+                        R$ {selectedProduct.daily_price.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="price-detail">
+                      <span className="price-label">Semanal</span>
+                      <span className="price-value">
+                        R$ {selectedProduct.weekly_price.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="detail-actions">
+                  <button
+                    className="rent-btn-detail"
+                    disabled={selectedProduct.status !== "disponivel"}
+                  >
+                    {selectedProduct.status === "disponivel"
+                      ? "Alugar Agora"
+                      : selectedProduct.status === "alugado"
+                      ? "Produto Alugado"
+                      : "Em Manutenção"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

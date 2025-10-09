@@ -44,6 +44,7 @@ type Produto struct {
 	TempoValor  sql.NullFloat64
 	Status      sql.NullString
 	Localizacao sql.NullString
+	ImagemUrl   sql.NullString
 }
 
 type Token struct {
